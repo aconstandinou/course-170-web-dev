@@ -36,7 +36,7 @@ tags <a> and </a> will be the content of the anchor link.
 
 So, anchor tags will look a bit like this:
 
-<a>...</a>
+<a>content goes here</a>
 
 # ATTRIBUTES
 Properties used to provide additional info about
@@ -59,7 +59,7 @@ Element  Attribute                      Tag
 # Must include following declaration + elements:
 <!DOCTYPE html>, <html>, <head>, and <body>
 
-<!DOCTYPE html>: informs web broswers which version of html
+<!DOCTYPE html>: informs web browsers which version of html
                 is being used and is placed at beginning of HTML doc.
 
 #<html>
@@ -139,7 +139,7 @@ p {
 }
 
 # Review
-#Selector
+# Selector
 p {       #value
   color: orange;
   font-size: 16px;
