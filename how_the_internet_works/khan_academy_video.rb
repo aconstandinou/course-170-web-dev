@@ -1,8 +1,8 @@
-# WIRES, CABLES, WIFI
+#################### WIRES, CABLES, WIFI###################
 
 Internet ships binary information, made up of bits.
 Bits: on or off (like yes or no) 1 = on, 0 = off.
-      binary
+      since theres only two states, its called binary
 
 8 bits = 1 byte
 1000 bytes = 1 kilobyte
@@ -37,7 +37,7 @@ WIFI: use radio signals to transmit bits. They need to convert bits to radio sig
       and once received, they need to reconvert back to bits.
 
 
-# IP ADDRESSES AND DNS
+#################### IP ADDRESSES AND DNS ###################
 
 Vint Cerf & Bob Kahn: set up the internetworking protocol as a standard
 
@@ -78,36 +78,91 @@ DNS originally built to be open for government and schools, also makes it
   susceptible to cyber attacks.
 
 ex: DNS spoofing. Hacker hacks into DNS and changes the address of a given site.
+    user is sent to a fake website, whether knowingly or not.
 
-
-# PACKET, ROUTERS, RELIABILITY
+################### PACKET, ROUTERS, RELIABILITY ###################
 
 How is our data transmitted correctly?
 Ex: play a song from Spotify
 
+Data travels in a much less direct fashion.
+Computer to computer path may change as its happening.
+
+# Packet
+Data is transferred via a packet (think amazon box) and is transferred along
+  different pathways. Like traffic or congestion, it can take a different path
+  at any moment
+
+Giant packets need to be broken down and sent in pieces, and will arrive at
+  different times, is then re-assembled.
+
+Each packet has the IP address of where it came from and to where its going.
+
+# Routers
+Routers: act as traffic managers to keep packets moving smoothly.
+        finds cheapest available path for each piece of data.
+        "cheapest" = time, politics, relationships between companies
+
+Reliability: fault tolerant as packets can be sent even if pathways are broken.
+
+Back to Spotify song ex. How do we get it to play perfectly?
+
+# TCP
+TCP: Transmission Control Protocol - manages the sending and receiving of data.
+                                      kind of like a guaranteed mail service.
+
+When received, TCP runs a full check of inventory and sends a message back
+  acknowledging that. If all packets are there, TCP signs for the delivery.
+  If anything missing, TCP does not sign for it.
+  Spotify will resend any missing packets. Then once approved, song will play.
+
+More Routers = More Reliable the internet becomes.
+
+################### HTTP and HTML ###################
 
 
+Ex: accessing the internet through a browser.
+
+1. Open Web Browser = app to access internet. ie: Internet Explorer, Mozilla, Chrome.
+
+2. Type in web address (url: uniform resource locator) and pc communicates with server
+     to receive web address of the target site. This communication is known as HTTP.
+
+2. a) HTTP ((H)yper(T)ext (T)ransfer (P)rotocol): language for device to request from
+                                                  other device for document.
+   main language is "GET" requests.
+   GET document-being-requested
+   lets say were requesting Tumblr login page. Its requesting the html page for login.
+
+3. HTML ((H)yper (T)ext (M)arkup (L)anguage)
+  On a webpage, all the text is included in HTML, but links and videos, etc. are
+  sent as separate HTTP requests.
+  Ex: image being loaded on wikipedia page. Server sends HTTP data for image and
+      its loaded as we are waiting for page to load.
+
+4. Sometimes when we submit info (ie: search engine or filling out a form),
+   we send info via "POST" requests.
+
+5. Accessing our Tumblr login page, once the server accepts login as correct,
+  it not only sends along the home page, but a hidden piece of data "COOKIE"
+
+6. "COOKIE": data is an ID card for Tumblr to identify you, so the next time
+            you refresh Tumblr or go to Tumblr.com, web browser knows to automatically
+            attach that ID number with request over to Tumblr server.
+
+7. Secure Sockets Layer: to allow communication to be protected and private.
+                        SSL, and TLS are active when you see little lock next to https
+                        When server wants to communicate safely, it provides a
+                        DIGITAL CERTIFICATE (like an official ID card) proving that
+                        its the website its meant to be.
+
+8. Digital Certificates: issued by Certificate Authorities who are trusted entities
+                        that verify identities of websites and issue them certificates.
+
+9. If website tries to communicate without a proper certificate, browser will warn you.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.
+Summary, HTTP & DNS manage the sending/receiving of web files (or anything on the web)
+This is allowed via TCP/IP and Router Networks that break down and transport packets.
+Packets are made up of binary (1s and 0s) physically sent through wires, fiber optic cables,
+and wifi networks.
