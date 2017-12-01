@@ -145,6 +145,77 @@ Status Code   Status Text               Meaning
 
 # 302 Redirect
 
+- resource is moved, common strategy to redirect original url to new url.
+- browser automatically follows re-route in the "Location" response header.
+
+ex: https://github.com/settings/profile
+note: this link only works if youre already signed in. If not, it will redirect you.
+      after re-route, you login and then re-routed once more back to original URL.
+
+In our book example, using Postman we see status code 302 with the following...
+In header, line "Location" has the following link
+  https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fprofile
+
+Notice the return_to parameter.
+
+
+# 404 Not Found
+
+our example uses link: https://www.dropbox.com/awesome_file.jpg
+
+
+# 500 Internal Server Error
+
+
+code says "there's something wrong on the server side". This is a generic
+  error status code and the core problem can range from a mis-configured server
+  setting to a misplaced comma in the application code. But whatever the problem,
+  its a server side issue.
+
+
+# Response Headers
+
+Back to URL: al-blackjack.herokuapp.com/new_player
+using Inspector -> Network Tab
+
+Header Name       Description	                            Example
+Content-Encoding	The type of encoding used on the data.	Content-Encoding: gzip
+Server	          Name of the server.	                    Server:thin 1.5.0 codename Knife
+Location	        Notify client of new resource location.	Location: https://www.github.com/login
+Content-Type	    The type of data the response contains.	Content-Type:text/html; charset=UTF-8
+
+###############################################################################
+############################## STATEFUL WEB APPS ##############################
+###############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
