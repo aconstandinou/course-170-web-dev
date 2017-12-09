@@ -152,28 +152,465 @@ Note that Rack doesn’t come with its own server, but it’s smart enough to
   the default server that comes with Ruby, Webrick.
 
 
-  ################################### Part 2 ###################################
-  ##############################################################################
+################################### Part 2 ###################################
+##############################################################################
+
+there is one other component of the call method that we have been ignoring, the
+  "env" argument. What is the point of env, and why might we need it.
 
 
+# Routing: Adding in other pages to our app
+
+We have an application that delivers a simple message, “Hello World!”,
+  to the client no matter what type of request or query parameters are sent.
+  But what if we want a bit more functionality in our application?
+  We may want to send a dynamic string back to the client based on the request.
+
+Let’s create another file to act as the storage for our dynamic content.
+  We’ll pretend that our web application is going to send back some piece of advice,
+  so we’ll create an Advice class in an advice.rb file
+
+my_framework/
+ ├── Gemfile
+ ├── Gemfile.lock
+ ├── config.ru
+ ├── hello_world.rb
+ └── advice.rb
+
+ # advice.rb
+
+ class Advice
+   def initialize
+     @advice_list = [
+       "Look deep into nature, and then you will understand everything better.",
+       "I have found the paradox, that if you love until it hurts, there can be no more hurt, only more love.",
+       "What we think, we become.",
+       "Love all, trust a few, do wrong to none.",
+       "Oh, my friend, it's not what they take away from you that counts. It's what you do with what you have left.",
+       "Lost time is never found again.",
+       "Nothing will work unless you do."
+     ]
+   end
+
+   def generate
+     @advice_list.sample
+   end
+ end
+
+NOTE: 1) notice that the class above is not a separate web app like HelloWorld.
+         it doesnt have a call method. Class is solely used for content generation.
+      2) With Advice class, we only want to augment our web app.
+
+Answer: "Routing": allows us to use HTTP request to decide which URL to navigate to.
+
+How? - if request path specifies root path (just '/') show "Hello World" message
+       if request path specifies '/advice' then well reply with random advice.
+       we will also add in one more route to handle any pages that dont exist within app.
+
+we modified our hello_world.rb code
+
+require_relative 'advice'     # loads advice.rb
+
+class HelloWorld
+  def call(env)
+    case env['REQUEST_PATH']
+    when '/'
+      ['200', {"Content-Type" => 'text/plain'}, ["Hello World!"]]
+    when '/advice'
+      piece_of_advice = Advice.new.generate    # random piece of advice
+      ['200', {"Content-Type" => 'text/plain'}, [piece_of_advice]]
+    else
+      [
+        '404',
+        {"Content-Type" => 'text/plain', "Content-Length" => '13'},
+        ["404 Not Found"]
+      ]
+    end
+  end
+end
 
 
+restart server
+$ bundle exec rackup config.ru -p 9595
+
+Root Path (localhost:9595/)
+"Hello World!"
+
+Advice Path (localhost:9595/advice)
+random advice is generated
+
+Missing Path (localhost:9595/whatever)
+"404 Not Found"
+
+# Adding HTML to Response Body
+
+Goals:
+  1. Make "Hello World" an "h2" header.
+  2. Italicize and bold our advice.
+  3. For 404 page, make it an "h4"
+     NOTE: dont forget to change the content-type of our HelloWorld.
+           If we keep it as "text/plain" we will show our actual HTML to the client.
+           We want the client to actually render the HTML.
+
+New Code changed to
+
+require_relative 'advice'
+
+class HelloWorld
+  def call(env)
+    case env['REQUEST_PATH']
+    when '/'
+      [
+        '200',
+        {"Content-Type" => 'text/html'},
+        ["<h2>Hello World!</h2>"]
+      ]
+    when '/advice'
+      piece_of_advice = Advice.new.generate
+      [
+        '200',
+        {"Content-Type" => 'text/html'},
+        ["<html><body><b><em>#{piece_of_advice}</em></b></body></html>"]
+      ]
+    else
+      [
+        '404',
+        {"Content-Type" => 'text/html', "Content-Length" => '48'},
+        ["<html><body><h4>404 Not Found</h4></body></html>"]
+      ]
+    end
+  end
+end
+
+Note that if we didn’t update the content type of our response then this is what we would see:
+
+# Root Path (localhost:9595/)
+<h2>Hello World!</h2>
+
+Some things to point out;
+
+There are still some improvements that can be made. We’re writing the same
+  code over and over again in those response bodies. HTML tags and body tags
+  are listed in each of the three cases above. We want to avoid repetition.
+
+One other issue is that our HTML responses are hardcoded in the routing code,
+  and it feels very restrictive. As an application grows and changes, it may
+  be necessary to return responses that are far more complex than what we
+  currently have. Imagine trying to include all the HTML necessary for the
+  front page of your favorite web application into the code we have. It would
+  take up far too much space and make our call method unmanageable.
+
+################################### Part 3 ###################################
+##############################################################################
+
+# View Templates
+
+view templates = pieces of code we can store and maintain related to what we want to display.
+
+View templates are separate files that allows us to do some pre-processing on
+  the server side in a programming language (Ruby, Python, JavaScript, etc) and
+  then translate programming code into a string to return to the client (usually HTML)
+
+# ERB
+
+"Embedded Ruby" (ERB) = template engine that allows us to embed Ruby directly into HTML.
+                        it produces a final 100% HTML string.
+
+Can test ERB engine in irb.
+
+To use ERB, first we must:
+
+- require 'erb'
+- Create an ERB template object and pass in a string using the special syntax that mixes Ruby with HTML.
+- Invoke the ERB instance method result, which will give us a 100% HTML string.
+
+in irb
+
+require 'ERB'
+
+def random_number
+  (0..9).to_a.sample
+end
+
+content1 = ERB.new("<html><body><p>The number is: <%= random_number %>!</p></body></html>")
+content2 = ERB.new("<html><body><p>The number is: <%= random_number %>!</p></body></html>")
+content1.result
+=> "<html><body><p>The number is: 7!</p></body></html>"
+content2.result
+=> "<html><body><p>The number is: 8!</p></body></html>"
+
+Note that we’re instantiating a new ERB template object with Ruby and HTML mixed together.
+Note also that we’re using the "<%= %>" special syntax to let ERB know how to process this mixed content.
+
+The final output from ERB is pure HTML.
+
+"<%= %>": ERB tags used to execute Ruby code that is embedded within a string
+
+Two tags:
+'<%= %>' – will evaluate the embedded Ruby code, and include its return value in the HTML output.
+           A method invocation, for example, would be a good candidate for this tag.
+'<% %>' – will only evaluate the Ruby code, but not include the return value in the HTML output.
+          You’d use this tag for evaluating Ruby but don’t want to include its return value in
+          the final string. A method definition, for example, would be a good use case for this tag.
 
 
+# Adding in View Templates
+
+default view template -> index.erb
+
+Step 1) Created a folder called 'views'
+        Created a file in that folder called index.erb
+        index.erb Contents;
+        <html>
+          <body>
+            <h2>Hello World!</h2>
+          </body>
+        </html>
+We want some organization within our application, so for now, we’ll put all
+  view templates in the views folder. This folder should be located at the
+  top-level of our application, along with config.ru and hello_world.rb
+
+Application now looks like this
+my_framework/
+ ├── Gemfile
+ ├── Gemfile.lock
+ ├── config.ru
+ ├── hello_world.rb
+ ├── advice.rb
+ └── views/
+       └── index.erb
+
+new code
+# hello_world.rb
+
+class HelloWorld
+  def call(env)
+    case env['REQUEST_PATH']
+    when '/'
+      template = File.read("views/index.erb")
+      content = ERB.new(template)
+      ['200', {"Content-Type" => "text/html"}, [content.result]]
+    when '/advice'
+      piece_of_advice = Advice.new.generate
+      [
+        '200',
+        {"Content-Type" => 'text/html'},
+        ["<html><body><b><em>#{piece_of_advice}</em></b></body></html>"]
+      ]
+    else
+      [
+        '404',
+        {"Content-Type" => 'text/html', "Content-Length" => '48'},
+        ["<html><body><h4>404 Not Found</h4></body></html>"]
+      ]
+    end
+  end
+end
+
+- with view template, we can read it into our application and use it.
+  We used ".read" method from Ruby "File" class
+
+- now we have view template in string format, we can pass it into ERB object
+  and use that as a way to get our response body.
+
+- weve fixed one of our three routes and the other two still have HTML within their routing code.
+
+################################### Part 4 ###################################
+##############################################################################
+
+Focus
+  1 - Continue to separate out the view related code for our other routes
+  2 - Extract some more general purpose methods to a framework.
+
+# cleaning up #call method
+
+- reviewing our call method in "Hello_World.rb"
+  we have code related to reading in files and setting up a templating object,
+  an object not directly related to the request or response.
+- clean-up; move code to its own method, then use method within call method.
+
+This is what we want to accomplish using a non-existent erb method that abstracts away
+  the details of how ERB templates are prepared and rendered. We pass that erb
+  method a symbol, signifying which template to render
+
+# hello_world.rb
+
+def call(env)
+  case env['REQUEST_PATH']
+  when '/'
+    ['200', {"Content-Type" => "text/html"}, [erb(:index)]] # ***RIGHT HERE!***
+  when '/advice'
+    piece_of_advice = Advice.new.generate
+    [
+      '200',
+      {"Content-Type" => 'text/html'},
+      ["<html><body><b><em>#{piece_of_advice}</em></b></body></html>"]
+    ]
+  else
+    [
+      '404',
+      {"Content-Type" => 'text/html', "Content-Length" => '48'},
+      ["<html><body><h4>404 Not Found</h4></body></html>"]
+    ]
+  end
+end
+
+# here is the erb implementation
+def erb(filename)
+  path = File.expand_path("../views/#{filename}.erb", __FILE__)
+  content = File.read(path)
+  ERB.new(content).result
+end
+
+# new code altogether
+
+# hello_world.rb
+
+class HelloWorld
+  def call(env)
+    case env['REQUEST_PATH']
+    when '/'
+      ['200', {"Content-Type" => "text/html"}, [erb(:index)]]
+    when '/advice'
+      piece_of_advice = Advice.new.generate
+      [
+        '200',
+        {"Content-Type" => 'text/html'},
+        ["<html><body><b><em>#{piece_of_advice}</em></b></body></html>"]
+      ]
+    else
+      [
+        '404',
+        {"Content-Type" => 'text/html', "Content-Length" => '48'},
+        ["<html><body><h4>404 Not Found</h4></body></html>"]
+      ]
+    end
+  end
+
+  private
+
+  def erb(filename)
+    path = File.expand_path("../views/#{filename}.erb", __FILE__)
+    content = File.read(path)
+    ERB.new(content).result
+  end
+end
+
+- note the method "File::expand_path"
+  We’re using this method to obtain the full path to the view template in question.
+  __FILE__ returns the relative path to the current file; in this case, to the file hello_world.rb
+  From there we navigate up to my_framework and then append /views/#{filename}.erb
+
+- Using that helpful erb method results in much cleaner code, and leaves our
+  call method very intentional and clear.
 
 
+# Adding More View Templates
 
+- we need a view template for both “advice” and “not found” pages.
+Step 1) create advice.erb file within views folder
+        code
+        <html>
+          <body>
+            <p><em><%= message %></em></p>
+          </body>
+        </html>
 
+Step 2) create not_found.erb file within views folder
+        code
+        <html>
+          <body>
+            <h2>404 Not Found</h2>
+          </body>
+        </html>
 
+File structure
 
+my_framework/
+ ├── Gemfile
+ ├── Gemfile.lock
+ ├── config.ru
+ ├── hello_world.rb
+ ├── advice.rb
+ └── views/
+        ├── index.erb
+        ├── advice.erb
+        └── not_found.erb
 
+# we now want to refactor our erb within Hello_World.rb
+def erb(filename, local = {})
+  b = binding
+  message = local[:message]
+  path = File.expand_path("../views/#{filename}.erb", __FILE__)
+  content = File.read(path)
+  ERB.new(content).result(b)
+end
 
+first line in the method, b = binding is necessary.
+The next line takes the value from our passed in hash and assigns it to a variable.
+The key we’re expecting is called :message, and if that key doesn’t exist, then the
+  message variable is nil.
+The message local variable is then made available within our ERB template when
+  we pass in the binding, b, to our ERB template object on the last line.
+Again, if you’re unsure how binding works, just know that the message local
+  variable is made available to the view templates when local[:message] is not nil.
 
+# Refactoring and Streamlining our Application
 
+- weve renamed our hello_world.rb file to app.rb since its more dynamic.
+  we also updated config.ru file for this change.
 
+- next optimization; update how we compose our response.
+  See how we have to use the result of the erb method within an array literal?
+  We also have to manually list out the status code, headers, and the response
+  body. It would be nice if we could use a more natural syntax for delivering
+  a response from our call method.
 
+def call(env)
+  case env['REQUEST_PATH']
+  when '/'
+    status = '200'
+    headers = {"Content-Type" => 'text/html'}
+    response(status, headers) do
+      erb :index
+    end
+  when '/advice'
+    piece_of_advice = Advice.new.generate
+    status = '200'
+    headers = {"Content-Type" => 'text/html'}
+    response(status, headers) do
+      erb :advice, message: piece_of_advice
+    end
+  else
+    status = '404'
+    headers = {"Content-Type" => 'text/html', "Content-Length" => '61'}
+    response(status, headers) do
+      erb :not_found
+    end
+  end
+end
 
+- looks nicer and we dont have to insert an Array literal into our call method.
+- now we need a new method "response"
+  def response(status, headers, body = '')
+    body = yield if block_given?
+    [status, headers, [body]]
+  end
 
+Seems simple enough, if we do want to use a view template, then we pass it in
+  as a block of code to our response method. Otherwise, we allow the user to
+  specify the response value as a third method argument
+The creation and organization of the response itself is encapsulated within
+  this method as well, pushing the unsightly nested array syntax to this
+  private method. This means we can use a much more natural syntax in our call
+  method, which is where we’ll be writing most of our application logic code.
+  Consolidating the core processing of the response into this response method
+  also gives us one place to update should we have new requirements in the future.
+
+# WHERE I LEFT OFF -> You need to read through the new app.rb code.
+#                     Figure out the steps in our new private methods.
+#                     Were using blocks, the return value of blocks and then the returns
+#                     of the method. But figure out the path as this is very important.
 
 
 
