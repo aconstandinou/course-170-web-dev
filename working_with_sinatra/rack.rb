@@ -43,14 +43,14 @@ Rack gives developers a consistent interface when working with Rack compatible s
 # Setup
 
 Step 1) created a new folder called "my_framework"
-       windows poershell; new-item -Name my_framework -itemtype directory
+       windows powershell command = $ new-item -Name my_framework -itemtype directory
        cd into this new folder
 Step 2) create a new Gemfile
-       Gemfile
+       Gemfile code
        # Gemfile
        source "https://rubygems.org"
        gem 'rack', '~> 2.0.1'
-       then run bundle install
+       then run -> $ bundle install
 
 # What Makes a Rack App
 
@@ -65,7 +65,7 @@ Rack; it’s a specification for connecting our application code to the web serv
 2. The rack application we use in the rackup file must be an Ruby object that
    responds to the method call(env). The call(env) method takes one argument, the environment variables for this application.
 
-The call method always returns an array, containing these 3 elements [1]:
+The call method always returns an array, containing these 3 elements []:
   1. Status Code: represented by a string or some other data type that responds to to_i.
   2. Headers: these will be in the form of key-value pairs inside a hash. The key will
               be a header name and the corresponding value will be the value for that header.
@@ -84,13 +84,16 @@ Together, these three elements represent the information that will be used to pu
 Step 1) “rackup” configuration file to run our application
         by default Rack will expect it to be called config.ru, though any file ending in .ru would work
         create + save file in our root directory
+        config.ru code;
         # config.ru
         require_relative 'hello_world'
 
         run HelloWorld.new
+
 Note: We have two things in our configuration file, a require_relative
-      that loads a file called hello_world.rb, and a call to the run method.
-      Rack configuration files use run to say what application we want to run on our server.
+      that loads a file called hello_world.rb (later changed to app.rb), and a
+      call to the run method. Rack configuration files use run to say what
+      application we want to run on our server.
 We created a HelloWorld class which will act as our web application and is where most
   of our application code will be.
 
@@ -147,9 +150,9 @@ curl http://localhost:9595
 http://localhost:9595/
 
 Note that Rack doesn’t come with its own server, but it’s smart enough to
-  automatically try to use a sever that’s already installed on your machine.
+  automatically try to use a server that’s already installed on your machine.
   If you didn’t install any server, like Puma or Thin, then Rack will just use
-  the default server that comes with Ruby, Webrick.
+  the default server that comes with Ruby -> Webrick.
 
 
 ################################### Part 2 ###################################
@@ -233,6 +236,7 @@ end
 restart server
 $ bundle exec rackup config.ru -p 9595
 
+# outputs from browser
 Root Path (localhost:9595/)
 "Hello World!"
 
@@ -282,7 +286,8 @@ class HelloWorld
   end
 end
 
-Note that if we didn’t update the content type of our response then this is what we would see:
+Note that if we didn’t update the content type of our response then we would see
+     actual html code and not the output we want. Ex:
 
 # Root Path (localhost:9595/)
 <h2>Hello World!</h2>
@@ -294,7 +299,7 @@ There are still some improvements that can be made. We’re writing the same
   are listed in each of the three cases above. We want to avoid repetition.
 
 One other issue is that our HTML responses are hardcoded in the routing code,
-  and it feels very restrictive. As an application grows and changes, it may
+  essentially very restrictive. As an application grows and changes, it may
   be necessary to return responses that are far more complex than what we
   currently have. Imagine trying to include all the HTML necessary for the
   front page of your favorite web application into the code we have. It would
@@ -360,15 +365,17 @@ default view template -> index.erb
 
 Step 1) Created a folder called 'views'
         Created a file in that folder called index.erb
-        index.erb Contents;
+        index.erb code:
+
         <html>
           <body>
             <h2>Hello World!</h2>
           </body>
         </html>
+
 We want some organization within our application, so for now, we’ll put all
   view templates in the views folder. This folder should be located at the
-  top-level of our application, along with config.ru and hello_world.rb
+  top-level of our application (root), along with config.ru and hello_world.rb
 
 Application now looks like this
 my_framework/
@@ -413,7 +420,8 @@ end
 - now we have view template in string format, we can pass it into ERB object
   and use that as a way to get our response body.
 
-- weve fixed one of our three routes and the other two still have HTML within their routing code.
+- weve fixed one of our three routes and the other two still have HTML within their
+  routing code (which we will change).
 
 ################################### Part 4 ###################################
 ##############################################################################
@@ -424,7 +432,7 @@ Focus
 
 # cleaning up #call method
 
-- reviewing our call method in "Hello_World.rb"
+- reviewing our call method in "hello_world.rb"
   we have code related to reading in files and setting up a templating object,
   an object not directly related to the request or response.
 - clean-up; move code to its own method, then use method within call method.
@@ -459,41 +467,7 @@ end
 def erb(filename)
   path = File.expand_path("../views/#{filename}.erb", __FILE__)
   content = File.read(path)
-  ERB.new(content).result
-end
-
-# new code altogether
-
-# hello_world.rb
-
-class HelloWorld
-  def call(env)
-    case env['REQUEST_PATH']
-    when '/'
-      ['200', {"Content-Type" => "text/html"}, [erb(:index)]]
-    when '/advice'
-      piece_of_advice = Advice.new.generate
-      [
-        '200',
-        {"Content-Type" => 'text/html'},
-        ["<html><body><b><em>#{piece_of_advice}</em></b></body></html>"]
-      ]
-    else
-      [
-        '404',
-        {"Content-Type" => 'text/html', "Content-Length" => '48'},
-        ["<html><body><h4>404 Not Found</h4></body></html>"]
-      ]
-    end
-  end
-
-  private
-
-  def erb(filename)
-    path = File.expand_path("../views/#{filename}.erb", __FILE__)
-    content = File.read(path)
-    ERB.new(content).result
-  end
+  ERB.new(content).result # this returns our ERB object with HTML rendered
 end
 
 - note the method "File::expand_path"
@@ -515,6 +489,7 @@ Step 1) create advice.erb file within views folder
             <p><em><%= message %></em></p>
           </body>
         </html>
+# message above will be the sample string extracted from Advice
 
 Step 2) create not_found.erb file within views folder
         code
@@ -594,7 +569,7 @@ end
 - now we need a new method "response"
   def response(status, headers, body = '')
     body = yield if block_given?
-    [status, headers, [body]]
+    [status, headers, [body]]                   # needed as our return and removed from call method above
   end
 
 Seems simple enough, if we do want to use a view template, then we pass it in
@@ -607,10 +582,22 @@ The creation and organization of the response itself is encapsulated within
   Consolidating the core processing of the response into this response method
   also gives us one place to update should we have new requirements in the future.
 
-# WHERE I LEFT OFF -> You need to read through the new app.rb code.
-#                     Figure out the steps in our new private methods.
-#                     Were using blocks, the return value of blocks and then the returns
-#                     of the method. But figure out the path as this is very important.
+# Start of a Framework
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
