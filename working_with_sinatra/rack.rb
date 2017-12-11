@@ -584,32 +584,194 @@ The creation and organization of the response itself is encapsulated within
 
 # Start of a Framework
 
+- ability to hold common methods to enable multiple applications to be built
+  into a larger one. Think "frameworks"
+
+- what could we extract? "response" and "erb" methods.
+- any name will do for our framework, we will call it "Monroe"
+
+Step 1) create a new file monroe.rb
+      code
+      # monroe.rb
+
+      class Monroe
+        def erb(filename, local = {})
+          b = binding
+          message = local[:message]
+          path = File.expand_path("../views/#{filename}.erb", __FILE__)
+          content = File.read(path)
+          ERB.new(content).result(b)
+        end
+
+        def response(status, headers, body = '')
+          body = yield if block_given?
+          [status, headers, [body]]
+        end
+      end
+
+Step 2) our app now needs to inherit from this new piece of code and we remove
+        these methods from our app.
+
+        # app.rb
+
+        require_relative 'monroe'
+        require_relative 'advice'
+
+        class App < Monroe
+          def call(env)
+            case env['REQUEST_PATH']
+            when '/'
+              status = '200'
+              headers = {"Content-Type" => 'text/html'}
+              response(status, headers) do
+                erb :index
+              end
+            when '/advice'
+              status = '200'
+              headers = {"Content-Type" => 'text/html'}
+              piece_of_advice = Advice.new.generate
+              response(status, headers) do
+                erb :advice, message: piece_of_advice
+              end
+            else
+              status = '404'
+              headers = {"Content-Type" => 'text/html', "Content-Length" => '61'}
+              response(status, headers) do
+                erb :not_found
+              end
+            end
+          end
+        end
+
+# FINAL SHOWCASE - OUR APP SO FAR
+
+- Configuration and Files
+
+my_framework/
+ ├── Gemfile
+ ├── Gemfile.lock
+ ├── config.ru
+ ├── app.rb
+ ├── advice.rb
+ ├── monroe.rb
+ └── views/
+        ├── index.erb
+        ├── advice.erb
+        └── not_found.erb
+
+#config.ru
+
+require_relative 'app'
+
+run App.new
+
+# advice.rb
+
+class Advice
+  def initialize
+    @advice_list = [
+      "Look deep into nature, and then you will understand everything better.",
+      "I have found the paradox, that if you love until it hurts, there can be no more hurt, only more love.",
+      "What we think, we become.",
+      "Love all, trust a few, do wrong to none.",
+      "Oh, my friend, it's not what they take away from you that counts. It's what you do with what you have left.",
+      "Lost time is never found again.",
+      "Nothing will work unless you do."
+    ]
+  end
+
+  def generate
+    @advice_list.sample
+  end
+end
+
+# app.rb
+
+require_relative 'monroe'
+require_relative 'advice'
+
+class App < Monroe
+  def call(env)
+    case env['REQUEST_PATH']
+    when '/'
+      status = '200'
+      headers = {"Content-Type" => 'text/html'}
+      response(status, headers) do
+        erb :index
+      end
+    when '/advice'
+      status = '200'
+      headers = {"Content-Type" => 'text/html'}
+      piece_of_advice = Advice.new.generate
+      response(status, headers) do
+        erb :advice, message: piece_of_advice
+      end
+    else
+      status = '404'
+      headers = {"Content-Type" => 'text/html', "Content-Length" => '61'}
+      response(status, headers) do
+        erb :not_found
+      end
+    end
+  end
+end
+
+# monroe.rb
+
+class Monroe
+  def erb(filename, local = {})
+    b = binding
+    message = local[:message]
+    path = File.expand_path("../views/#{filename}.erb", __FILE__)
+    content = File.read(path)
+    ERB.new(content).result(b)
+  end
+
+  def response(status, headers, body = '')
+    body = yield if block_given?
+    [status, headers, [body]]
+  end
+end
+
+# VIEW TEMPLATES
+
+#views/index.erb
+<html>
+  <body>
+    <h2> Hello World!</h2>
+  </body>
+</html>
 
 
+#views/advice.erb
+<html>
+  <body>
+    <p><em><%= message %></em></p>
+  </body>
+</html>
 
 
+#views/not_found.erb
+<html>
+  <body>
+    <h2>404 Not Found</h2>
+  </body>
+</html>
 
+Conclusion
 
+Rack is a web server interface, which gives back-end application developers a
+  stable communication protocol between application code and web servers.
 
+We assumed Rack as the baseline, and build up our application using the conventions
+  provided to us by Rack. When we “assume rack” and follow the conventions it
+  gives us, our task of filling in the implementation details of an application
+  is far more streamlined; we don’t have to use time to write code for connecting
+  a client to various web servers or worry about what type of connection to use.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.
+As we’ve shown throughout this series, we can create various modular parts of an
+  application such as: specific files for display to the user (view templates),
+  classes which can be used as models of objects we want to represent in our application (our advice.rb file),
+  or code that enables us to control how we handle a request and what type of
+  response we send back (our main router).
+We then extracted common code that we can reuse for other web applications.
