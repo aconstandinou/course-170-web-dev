@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><%= @title %></title>
+
+</head>
+
+<body>
+
+  <div id="layout">
+
+      <div id="main">
+        <div class="header">
+          <h1>List of Files</h1>
+        </div>
+
+        <div class="content">
+          <div class="pure-menu">
+            <ul class="pure-menu-list">
+              <% @list_files.each do |ff| %>
+                <li>
+                  <a href="<%= ff %>"><%= ff %></a>
+                </li>
+              <% end %>
+            </ul>
+            <p>
+              <% if params[:sort] == "desc" %>
+                <a href="/">Sort ascending</a>
+              <% else %>
+                <a href="/?sort=desc">Sort descending</a>
+              <% end %>
+            </p>
+          </div>
+        </div>
+      </div>
+  </div>
+</body>
+</html>
