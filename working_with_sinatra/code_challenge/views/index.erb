@@ -10,32 +10,20 @@
 
 <body>
 
-  <div id="layout">
+  <ul>
+    <% @files.each do |file| %>
+      <li>
+        <a href="<%= file %>"><%= file %></a>
+      </li>
+    <% end %>
+  </ul>
 
-      <div id="main">
-        <div class="header">
-          <h1>List of Files</h1>
-        </div>
-
-        <div class="content">
-          <div class="pure-menu">
-            <ul class="pure-menu-list">
-              <% @list_files.each do |ff| %>
-                <li>
-                  <a href="<%= ff %>"><%= ff %></a>
-                </li>
-              <% end %>
-            </ul>
-            <p>
-              <% if params[:sort] == "desc" %>
-                <a href="/">Sort ascending</a>
-              <% else %>
-                <a href="/?sort=desc">Sort descending</a>
-              <% end %>
-            </p>
-          </div>
-        </div>
-      </div>
-  </div>
+  <p>
+    <% if params[:sort] == "desc" %>
+      <a href="/">Sort ascending</a>
+    <% else %>
+      <a href="/?sort=desc">Sort descending</a>
+    <% end %>
+  </p>
 </body>
 </html>
