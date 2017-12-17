@@ -46,4 +46,8 @@ end
 # 4. #2 and #3 all come together in our HTML code.
 #    Notice how if params[:sort] == "desc" our button shows sort ascending
 #    and vice versa. This is
-# 5. NEED TO FIGURE OUT HOW OUR BUTTON desc descending IS POPPING UP !
+# 5. <a href=> attribute specifies the linked document, resource, or location.
+#    Without the leading '/', a URL is relative to the current page location
+#      and not the top level. So we include leading slash in our case.
+#    Button? Well by adding a href tags, with Sort descending adds the link to the href
+#            path and also a link to the HTML page.
