@@ -25,6 +25,5 @@ end
 # adding a new route for user name
 get "/:name" do
   @name = params[:name]
-
   erb :user
 end
