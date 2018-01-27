@@ -1,0 +1,103 @@
+############################### Project Todos ###############################
+
+# This will be a note taker.
+
+############################## Project Template ##############################
+/CODE/
+  |
+  - config.ru (what code needs to be run when app is started)
+  - Gemfile (list out dependencies, gem source, etc.)
+  - Gemfile.lock (generated with bundler)
+  - public/
+      |
+      -- images/
+           |
+           -- list of images
+      -- stylesheets/
+           |
+           -- list of stylesheets
+  - README (intro info and how to get started)
+  - todo.rb (main project code, define routes, functionality, etc)
+  - views/
+      |
+      -- layout.erb (main app layout for our project)
+
+############################## Project Demo ##############################
+PROJECT
+
+- Lays out multiple lists
+  |
+  -- each list can have as many todos as you want
+
+- Ex: New Todo: Lunch Groceries
+                |
+                -- Bread
+                -- Lettuce
+                -- Tomatoes
+
+############################ WHAT IS STATE? #############################
+
+- State: is data that persists over time
+- HTTP: known as state-less
+        When server finishes handling one response, it forgets everything about that request
+        before accepting the next one.
+
+- Servers can remember things between requests -> requires techniques built on top of HTTP
+
+- HTTP has no concept of state itself, but we can use it to send info back and forth that,
+  when interpreted correctly on both sides, creates a system where we can persists state
+  across requests.
+
+############################ CLEARING COOKIES #############################
+- After updating parts of our todo.rb code, we wanted to look at how to clear cookies
+  since we were now tracking our users inputs.
+
+- Right click in browser -> Inspect
+- Go to 'Application' -> left side list will show Cookies Tab.
+- Click on Cookies -> sub-element shows our localhost:4567
+                      within this, we can see name: rack.session and value
+                      is what is holding our session data. Changing this or deleting it
+                      would remove the todo list data in our session.
+- Can delete cookie -> simply double click 'value' and clear the input.
+
+To prove the point that the cookie stores our session, lets re-create some todos
+  and then edit our cookie.
+
+1. Installed Chrome extension: editthiscookie
+ - Little icon of a cookie pops up right of the url search bar.
+2. Re-created some todo lists: Test List and Second List
+3. Hit our cookie icon, changed a character, saved it, and refreshed page.
+4. Our two todo lists were removed.
+5. If you copied the original cookie, restarted with a new list, and then repasted
+   back in the original cookie, you would go back to the old list of lists!
+   WHY? Because all data is stored in that cookie
+
+Session hijacking -> known as copying cookies, and using that data to impersonate people across
+                     various websites.
+HTTPS -> can be used to secure that
+
+Value of cookies is same data being held on server!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.
