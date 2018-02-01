@@ -40,6 +40,11 @@ get "/lists/new" do
   erb :new_list, layout: :layout
 end
 
+get "/lists/:id" do
+  @list_to_use = session[:lists].select {|list| list[:id] == params[:id]}
+  erb :new_list, layout: :layout
+end
+
 # Return an error message if the name is invalid. Return nil if name is valid.
 def error_for_list_name(name)
   error_to_ret = nil
@@ -54,12 +59,13 @@ end
 # Create a new list
 post "/lists" do
   list_name = params[:list_name].strip
-
-  if error = error_for_list_name(list_name)
+  error = error_for_list_name(list_name)
+  curr_list_size = session[:lists].size
+  if error
     session[:error] = error
     erb :new_list, layout: :layout
   else
-    session[:lists] << {name: list_name, todos: []}
+    session[:lists] << {name: list_name, todos: [], id: curr_list_size - 1}
     session[:success] = "The list has been created."
     redirect "/lists"
   end
