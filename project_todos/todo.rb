@@ -1,6 +1,7 @@
 require "sinatra"
 require "sinatra/reloader"
 require "tilt/erubis"
+require "sinatra/content_for"
 
 # to track our todos in a user session
 configure do
@@ -40,11 +41,6 @@ get "/lists/new" do
   erb :new_list, layout: :layout
 end
 
-get "/lists/:id" do
-  @list_to_use = session[:lists].select {|list| list[:id] == params[:id]}
-  erb :new_list, layout: :layout
-end
-
 # Return an error message if the name is invalid. Return nil if name is valid.
 def error_for_list_name(name)
   error_to_ret = nil
@@ -69,4 +65,13 @@ post "/lists" do
     session[:success] = "The list has been created."
     redirect "/lists"
   end
+end
+
+get "/lists/:id" do
+  # remember that parameters are strings, so as we try to index the list
+  #    number in out list as an index, it needs to be converted to an integer
+  id = params[:id].to_i
+  # using params[:id] as our index
+  @list = session[:lists][id]
+  erb :list_template, layout: :layout
 end
