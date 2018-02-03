@@ -56,12 +56,11 @@ end
 post "/lists" do
   list_name = params[:list_name].strip
   error = error_for_list_name(list_name)
-  curr_list_size = session[:lists].size
   if error
     session[:error] = error
     erb :new_list, layout: :layout
   else
-    session[:lists] << {name: list_name, todos: [], id: curr_list_size - 1}
+    session[:lists] << {name: list_name, todos: []}
     session[:success] = "The list has been created."
     redirect "/lists"
   end
@@ -74,4 +73,28 @@ get "/lists/:id" do
   # using params[:id] as our index
   @list = session[:lists][id]
   erb :list_template, layout: :layout
+end
+
+# Edit an existing todo list
+get "/lists/:id/edit" do
+  id = params[:id].to_i
+  @list = session[:lists][id]
+  erb :edit_list, layout: :layout
+end
+
+# Update existing todo list
+post "/lists/:id" do
+  list_name = params[:list_name].strip
+  id = params[:id].to_i
+  @list = session[:lists][id]
+
+  error = error_for_list_name(list_name)
+  if error
+    session[:error] = error
+    erb :edit_list, layout: :layout
+  else
+    @list[:name] = list_name
+    session[:success] = "The list name has been updated."
+    redirect "/lists/#{params[:id]}"
+  end
 end
