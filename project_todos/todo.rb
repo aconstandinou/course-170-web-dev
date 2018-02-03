@@ -43,13 +43,18 @@ end
 
 # Return an error message if the name is invalid. Return nil if name is valid.
 def error_for_list_name(name)
-  error_to_ret = nil
   if !(1..100).cover? name.size
-    error_to_ret = "List name must be between 1 and 100 characters."
+    "List name must be between 1 and 100 characters."
   elsif session[:lists].any? {|list| list[:name] == name}
-    error_to_ret = "List name must be unique."
+    "List name must be unique."
   end
-  error_to_ret
+end
+
+# Return an error message if the name is invalid. Return nil if name is valid.
+def error_for_todo(name)
+  if !(1..100).cover? name.size
+    "Todo name must be between 1 and 100 characters."
+  end
 end
 
 # Create a new list
@@ -66,12 +71,13 @@ post "/lists" do
   end
 end
 
+# View a single todo list
 get "/lists/:id" do
   # remember that parameters are strings, so as we try to index the list
   #    number in out list as an index, it needs to be converted to an integer
-  id = params[:id].to_i
+  @list_id = params[:id].to_i
   # using params[:id] as our index
-  @list = session[:lists][id]
+  @list = session[:lists][@list_id]
   erb :list_template, layout: :layout
 end
 
@@ -97,4 +103,53 @@ post "/lists/:id" do
     session[:success] = "The list name has been updated."
     redirect "/lists/#{params[:id]}"
   end
+end
+
+post "/lists/:id/destroy" do
+  id = params[:id].to_i
+  session[:lists].delete_at(id)
+  session[:success] = "The list has been removed."
+  redirect "/lists"
+end
+
+# Add a new todo to a list
+post "/lists/:list_id/todos" do
+  @list_id = params[:list_id].to_i
+  @list = session[:lists][@list_id]
+  todo_text = params[:todo].strip
+
+  error = error_for_todo(todo_text)
+  if error
+    session[:error] = error
+    erb :list_template, layout: :layout
+  else
+    @list[:todos] << {name: todo_text, completed: false}
+    session[:success] = "The todo has been added to list."
+    redirect "/lists/#{@list_id}"
+  end
+end
+
+# Delete a todo from list
+post "/lists/:list_id/todos/:id/destroy" do
+  @list_id = params[:list_id].to_i
+  @list = session[:lists][@list_id]
+
+  todo_id = params[:id].to_i
+  @list[:todos].delete_at(todo_id)
+  session[:success] = "The todo has been removed from list."
+  redirect "/lists/#{@list_id}"
+end
+
+# Update status of todo
+post "/lists/:list_id/todos/:id" do
+  @list_id = params[:list_id].to_i
+  # finds current list in sessions array
+  @list = session[:lists][@list_id]
+
+  todo_id = params[:id].to_i
+  is_completed = params[:completed] == "true"
+  @list[:todos][todo_id][:completed] = is_completed
+
+  session[:success] = "The todo status has been updated."
+  redirect "/lists/#{@list_id}"
 end
