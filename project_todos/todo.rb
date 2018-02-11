@@ -11,6 +11,43 @@ configure do
   set :session_secret, 'secret'
 end
 
+helpers do
+  def list_complete?(list)
+    todos_count(list) > 0 && todos_remaining_count(list) == 0
+  end
+
+  def list_class(list)
+    "complete" if list_complete?(list)
+  end
+
+  def todos_count(list)
+    list[:todos].size
+  end
+
+  def todos_remaining_count(list)
+    list[:todos].select { |todo| !todo[:completed] }.size
+  end
+
+  def sort_lists(lists, &block)
+    # takes array of objects, splits into two diff hashes
+    # loops thru hashes and yields values back to block passed in to method
+    # this is split by list complete...
+    # this can be replaced with the partition method #Enumerable
+    complete_lists, incomplete_lists = lists.partition { |list| list_complete?(list) }
+
+    incomplete_lists.each { |list| yield list, lists.index(list) }
+    complete_lists.each { |list| yield list, lists.index(list) }
+  end
+
+  def sort_todos(todos, &block)
+    complete_todos, incomplete_todos = todos.partition { |todo| todo[:completed] }
+
+    incomplete_todos.each { |todo| yield todo, todos.index(todo) }
+    complete_todos.each { |todo| yield todo, todos.index(todo) }
+  end
+
+end
+
 # this prevented the load error from happening where we call .each method on empty
 # list. Before anything is loaded, we create an empty list in our session
 before do
@@ -151,5 +188,19 @@ post "/lists/:list_id/todos/:id" do
   @list[:todos][todo_id][:completed] = is_completed
 
   session[:success] = "The todo status has been updated."
+  redirect "/lists/#{@list_id}"
+end
+
+# Mark all todos as complete
+post "/lists/:id/complete_all" do
+  @list_id = params[:id].to_i
+  # finds current list in sessions array
+  @list = session[:lists][@list_id]
+
+  @list[:todos].each do |todo|
+    todo[:completed] = "true"
+  end
+
+  session[:success] = "All are completed."
   redirect "/lists/#{@list_id}"
 end
