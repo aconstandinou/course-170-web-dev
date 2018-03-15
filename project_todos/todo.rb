@@ -1,5 +1,5 @@
 require "sinatra"
-require "sinatra/reloader"
+require "sinatra/reloader" if development?
 require "tilt/erubis"
 require "sinatra/content_for"
 
@@ -9,6 +9,10 @@ configure do
   enable :sessions
   # set to string secret, in production app, it would be much longer
   set :session_secret, 'secret'
+end
+
+configure do
+  set :erb, :escape_html => true
 end
 
 helpers do
@@ -46,6 +50,9 @@ helpers do
     complete_todos.each { |todo| yield todo, todos.index(todo) }
   end
 
+  def h(content)
+    Rack::Utils.escape_html(content)
+  end
 end
 
 # this prevented the load error from happening where we call .each method on empty
@@ -108,20 +115,30 @@ post "/lists" do
   end
 end
 
+# Ensure that a redirect occurs with list param ids that are greater than our
+#   list of
+def load_list(index)
+  list = session[:lists][index] if index && session[:lists][index]
+  return list if list
+
+  session[:error] = "The specified list was not found."
+  redirect "/lists"
+end
+
 # View a single todo list
 get "/lists/:id" do
   # remember that parameters are strings, so as we try to index the list
   #    number in out list as an index, it needs to be converted to an integer
   @list_id = params[:id].to_i
   # using params[:id] as our index
-  @list = session[:lists][@list_id]
+  @list = load_list(@list_id)
   erb :list_template, layout: :layout
 end
 
 # Edit an existing todo list
 get "/lists/:id/edit" do
   id = params[:id].to_i
-  @list = session[:lists][id]
+  @list = load_list(id)
   erb :edit_list, layout: :layout
 end
 
@@ -129,7 +146,7 @@ end
 post "/lists/:id" do
   list_name = params[:list_name].strip
   id = params[:id].to_i
-  @list = session[:lists][id]
+  @list = load_list(id)
 
   error = error_for_list_name(list_name)
   if error
@@ -152,7 +169,7 @@ end
 # Add a new todo to a list
 post "/lists/:list_id/todos" do
   @list_id = params[:list_id].to_i
-  @list = session[:lists][@list_id]
+  @list = load_list(@list_id)
   todo_text = params[:todo].strip
 
   error = error_for_todo(todo_text)
@@ -169,7 +186,7 @@ end
 # Delete a todo from list
 post "/lists/:list_id/todos/:id/destroy" do
   @list_id = params[:list_id].to_i
-  @list = session[:lists][@list_id]
+  @list = load_list(@list_id)
 
   todo_id = params[:id].to_i
   @list[:todos].delete_at(todo_id)
@@ -181,7 +198,7 @@ end
 post "/lists/:list_id/todos/:id" do
   @list_id = params[:list_id].to_i
   # finds current list in sessions array
-  @list = session[:lists][@list_id]
+  @list = load_list(@list_id)
 
   todo_id = params[:id].to_i
   is_completed = params[:completed] == "true"
@@ -195,7 +212,7 @@ end
 post "/lists/:id/complete_all" do
   @list_id = params[:id].to_i
   # finds current list in sessions array
-  @list = session[:lists][@list_id]
+  @list = load_list(@list_id)
 
   @list[:todos].each do |todo|
     todo[:completed] = "true"
