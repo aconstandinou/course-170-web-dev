@@ -159,11 +159,25 @@ post "/lists/:id" do
   end
 end
 
+# Delete a todo list
 post "/lists/:id/destroy" do
   id = params[:id].to_i
   session[:lists].delete_at(id)
-  session[:success] = "The list has been removed."
-  redirect "/lists"
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    "/lists"
+  else
+    session[:success] = "The list has been deleted."
+    redirect "/lists"
+  end
+end
+
+def next_todo_id(todos)
+  max = todos.map { |todo| todo[:id] }.max
+  if max == nil
+    return 1
+  else
+    return max + 1
+  end
 end
 
 # Add a new todo to a list
@@ -190,8 +204,20 @@ post "/lists/:list_id/todos/:id/destroy" do
 
   todo_id = params[:id].to_i
   @list[:todos].delete_at(todo_id)
-  session[:success] = "The todo has been removed from list."
-  redirect "/lists/#{@list_id}"
+
+  # env to access header parameters.
+  #    parses out allcomponents, ie: headers, parameters, into data structure..
+  #    a hash, request object is passed on to Sinatra, and calls correct route.
+  #    Rack processes headers, standardizes their capitalization and prepends them
+  #    with HTTP.
+  if env["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
+    # it was an ajax request. No need to redirect
+    # status code 200s are all successful ones. 204 stands for no content.
+    status 204
+  else
+    session[:success] = "The todo has been removed from list."
+    redirect "/lists/#{@list_id}"
+  end
 end
 
 # Update status of todo
