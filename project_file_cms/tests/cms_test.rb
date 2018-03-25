@@ -28,4 +28,20 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'history'
   end
 
+  def test_bad_file_request
+    get "/badfile.txt"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "badfile.txt does not exist."
+  end
+
+  def test_markdown
+    get "/aboutmd.md"
+    assert_equal 200, last_response.status
+    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
+    assert_includes last_response.body, "<p>"
+  end
+
 end
