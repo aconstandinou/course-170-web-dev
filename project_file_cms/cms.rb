@@ -46,3 +46,16 @@ get "/:filename" do
   end
 
 end
+
+get "/:filename/edit" do
+  file_path = @root + "/data/" + params[:filename]
+  @loaded_file = File.read(file_path)
+  erb :edit
+end
+
+post "/:filename" do
+  file_path = @root + "/data/" + params[:filename]
+  File.open(file_path, 'w') { |file| file.write(params[:edited_doc]) }
+  session[:message] = "#{params[:filename]} has been changed."
+  redirect "/"
+end
