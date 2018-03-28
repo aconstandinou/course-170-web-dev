@@ -1,2 +1,1 @@
-No CAN DO continue to edit this without issue.
-  
+changed content for ruby minitest

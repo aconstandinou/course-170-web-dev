@@ -44,4 +44,25 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "<p>"
   end
 
+  def test_editing_document
+    get "/about.txt/edit"
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<textarea"
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_updating_document
+    post "/about.txt", edited_doc: "changed content for ruby minitest"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "about.txt has been changed"
+
+    get "/about.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "changed content for ruby minitest"
+  end
+
 end
