@@ -55,7 +55,6 @@ get "/:filename" do
     session[:message] = "#{params[:filename]} does not exist."
     redirect "/"
   end
-
 end
 
 get "/:filename/edit" do
@@ -68,5 +67,16 @@ post "/:filename" do
   file_path = File.join(data_path, params[:filename])
   File.write(file_path, params[:edited_doc])
   session[:message] = "#{params[:filename]} has been changed."
+  redirect "/"
+end
+
+get "/create/document" do
+  erb :create
+end
+
+post "/create/document" do
+  file_path = File.join(data_path, params[:new_doc_name])
+  File.open(file_path, "w+")
+  session[:message] = "#{params[:new_doc_name]} has been created."
   redirect "/"
 end
