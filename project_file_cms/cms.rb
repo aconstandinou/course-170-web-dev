@@ -13,6 +13,13 @@ def render_markdown(text_to_render)
   markdown.render(text_to_render)
 end
 
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
+end
 
 before do
   @root = File.expand_path("..", __FILE__)
@@ -26,19 +33,23 @@ def file_exists?(f_name)
 end
 
 get "/" do
-  erb :index
+  pattern = File.join(data_path, "*")
+  @files = Dir.glob(pattern).map do |path|
+    File.basename(path)
+  end
+  erb :index, layout: :layout
 end
 
 get "/:filename" do
-  file_exists_bool = file_exists?(params[:filename])
+  file_path = File.join(data_path, params[:filename])
+  content = File.read(file_path)
 
-  if file_exists_bool
-    file_path = @root + "/data/" + params[:filename]
+  if file_exists?(params[:filename])
     if File.extname(file_path) == ".md"
-      render_markdown(File.read(file_path))
+      render_markdown(content)
     else
       headers["Content-Type"] = "text/plain"
-      File.read(file_path)
+      content
     end
   else
     session[:message] = "#{params[:filename]} does not exist."
@@ -48,14 +59,14 @@ get "/:filename" do
 end
 
 get "/:filename/edit" do
-  file_path = @root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
   @loaded_file = File.read(file_path)
-  erb :edit
+  erb :edit, layout: :layout
 end
 
 post "/:filename" do
-  file_path = @root + "/data/" + params[:filename]
-  File.open(file_path, 'w') { |file| file.write(params[:edited_doc]) }
+  file_path = File.join(data_path, params[:filename])
+  File.write(file_path, params[:edited_doc])
   session[:message] = "#{params[:filename]} has been changed."
   redirect "/"
 end
