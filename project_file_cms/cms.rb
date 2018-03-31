@@ -75,8 +75,16 @@ get "/create/document" do
 end
 
 post "/create/document" do
-  file_path = File.join(data_path, params[:new_doc_name])
-  File.open(file_path, "w+")
-  session[:message] = "#{params[:new_doc_name]} has been created."
-  redirect "/"
+  filename = params[:new_doc_name].to_s
+
+  if filename.size == 0
+    session[:message] = "A name is required."
+    status 422
+    erb :create
+  else
+    file_path = File.join(data_path, filename)
+    File.open(file_path, "w+")
+    session[:message] = "#{params[:new_doc_name]} has been created."
+    redirect "/"
+  end
 end

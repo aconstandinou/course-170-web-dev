@@ -91,4 +91,27 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "changed content for ruby minitest"
   end
 
+  def test_view_new_doc_form
+    get "/create/document"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input"
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_create_document
+    post "/create/document", new_doc_name: "doc_test.txt"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "doc_test.txt has been created."
+
+    get "/"
+    assert_includes last_response.body, "doc_test.txt"
+  end
+
+  def test_create_document_without_filename
+    post "/create/document", new_doc_name: ""
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "A name is required."
+  end
 end
