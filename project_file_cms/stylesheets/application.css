@@ -7,3 +7,12 @@ body {
   padding: 10px;
   background: #FFF175;
 }
+
+.message_signin_page {
+  padding: 10px;
+  font-style: italic;
+}
+
+form.inline {
+  display: inline;
+}

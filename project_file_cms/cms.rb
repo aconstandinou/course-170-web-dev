@@ -33,24 +33,33 @@ def file_exists?(f_name)
 end
 
 get "/" do
-  pattern = File.join(data_path, "*")
-  @files = Dir.glob(pattern).map do |path|
-    File.basename(path)
+  if session[:signin]
+    pattern = File.join(data_path, "*")
+    @files = Dir.glob(pattern).map do |path|
+      File.basename(path)
+    end
+    erb :index, layout: :layout
+  else
+    redirect "/users/signin"
   end
-  erb :index, layout: :layout
+end
+
+def load_file_content(path)
+  content = File.read(path)
+  case File.extname(path)
+  when ".txt"
+    headers["Content-Type"] = "text/plain"
+    content
+  when ".md"
+    erb render_markdown(content)
+  end
 end
 
 get "/:filename" do
   file_path = File.join(data_path, params[:filename])
-  content = File.read(file_path)
 
   if file_exists?(params[:filename])
-    if File.extname(file_path) == ".md"
-      render_markdown(content)
-    else
-      headers["Content-Type"] = "text/plain"
-      content
-    end
+    load_file_content(file_path)
   else
     session[:message] = "#{params[:filename]} does not exist."
     redirect "/"
@@ -87,4 +96,37 @@ post "/create/document" do
     session[:message] = "#{params[:new_doc_name]} has been created."
     redirect "/"
   end
+end
+
+post "/delete/:filename" do
+  file_path = File.join(data_path, params[:filename])
+  File.delete(file_path)
+  session[:message] = "#{params[:filename]} was deleted."
+  redirect "/"
+end
+
+get "/users/signin" do
+  erb :signin
+end
+
+post "/users/signin" do
+  username = params[:username].to_s
+  password = params[:password].to_s
+
+  if username == "admin" && password == "secret"
+    session[:message] = "Welcome!"
+    session[:username] = username
+    session[:signin] = TRUE
+    session[:message_signin_page] = "Signed in as #{username}."
+    redirect "/"
+  else
+    session[:username] = username
+    session[:message] = "Invalid Credentials"
+    erb :signin
+  end
+end
+
+get "/signed/out" do
+  session.delete(:signin)
+  redirect "/users/signin"
 end

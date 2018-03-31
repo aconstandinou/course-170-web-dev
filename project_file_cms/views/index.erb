@@ -2,9 +2,18 @@
   <% @files.each do |file| %>
     <li>
       <a href="/<%= file %>"><%= file %></a>
-      <a href="/<%= file %>/edit">Edit</a>
+      <a href="/<%= file %>/edit">edit</a>
+      <form class="inline" method="post" action="/delete/<%= file %>">
+        <button type="submit">delete</button>
+      </form>
     </li>
   <% end %>
 </ul>
 
 <a href="/create/document">New Document</a>
+
+<% if session[:message_signin_page] %>
+  <p class="message_signin_page"><%= session[:message_signin_page] %></p>
+<% end %>
+
+<a href="/signed/out">Sign Out</a>
