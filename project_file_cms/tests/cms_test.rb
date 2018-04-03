@@ -33,7 +33,7 @@ class CMSTest < Minitest::Test
 
     get "/"
 
-    assert_equal 200, last_response.status
+    assert_equal 302, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "about.md"
     assert_includes last_response.body, "changes.txt"
@@ -55,7 +55,7 @@ class CMSTest < Minitest::Test
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_equal 200, last_response.status
+    assert_equal 302, last_response.status
     assert_includes last_response.body, "badfile.txt does not exist."
   end
 
@@ -126,5 +126,39 @@ class CMSTest < Minitest::Test
 
     get "/"
     refute_includes last_response.body, "test_doc_to_delete.txt"
+  end
+
+  def test_signin_page
+    get "users/signin"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<input"
+    assert_includes last_response.body, %q(<button type="submit")
+  end
+
+  def test_good_login_credentials
+    post "users/signin", username: "admin", password: "secret"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Welcome!"
+    assert_includes last_response.body, "Signed in as admin"
+  end
+
+  def test_bad_login_credentials
+    post "users/signin", username: "bad", password: "bad"
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Invalid credentials"
+  end
+
+  def test_signout
+    post "/users/signin", username: "admin", password: "secret"
+    get last_response["Location"]
+    assert_includes last_response.body, "Welcome"
+
+    post "/users/signout"
+    get last_response["Location"]
+
+    assert_includes last_response.body, "You have been signed out"
+    assert_includes last_response.body, "Sign In"
   end
 end
