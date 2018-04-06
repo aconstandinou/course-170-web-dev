@@ -44,15 +44,15 @@ def require_signed_in_user
 end
 
 get "/" do
-  if session[:signin]
-    pattern = File.join(data_path, "*")
-    @files = Dir.glob(pattern).map do |path|
-      File.basename(path)
-    end
-    erb :index, layout: :layout
-  else
-    redirect "/users/signin"
+  #if user_signed_in?
+  pattern = File.join(data_path, "*")
+  @files = Dir.glob(pattern).map do |path|
+    File.basename(path)
   end
+  erb :index, layout: :layout
+  #else
+  #  redirect "/users/signin"
+  #end
 end
 
 def load_file_content(path)
@@ -118,7 +118,7 @@ end
 
 post "/delete/:filename" do
   require_signed_in_user
-  
+
   file_path = File.join(data_path, params[:filename])
   File.delete(file_path)
   session[:message] = "#{params[:filename]} was deleted."
