@@ -32,6 +32,17 @@ def file_exists?(f_name)
   @files.include?(f_name)
 end
 
+def user_signed_in?
+  session.key?(:username)
+end
+
+def require_signed_in_user
+  unless user_signed_in?
+    session[:message] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 get "/" do
   if session[:signin]
     pattern = File.join(data_path, "*")
@@ -67,12 +78,16 @@ get "/:filename" do
 end
 
 get "/:filename/edit" do
+  require_signed_in_user
+
   file_path = File.join(data_path, params[:filename])
   @loaded_file = File.read(file_path)
   erb :edit, layout: :layout
 end
 
 post "/:filename" do
+  require_signed_in_user
+
   file_path = File.join(data_path, params[:filename])
   File.write(file_path, params[:edited_doc])
   session[:message] = "#{params[:filename]} has been changed."
@@ -80,10 +95,13 @@ post "/:filename" do
 end
 
 get "/create/document" do
+  require_signed_in_user
   erb :create
 end
 
 post "/create/document" do
+  require_signed_in_user
+
   filename = params[:new_doc_name].to_s
 
   if filename.size == 0
@@ -99,6 +117,8 @@ post "/create/document" do
 end
 
 post "/delete/:filename" do
+  require_signed_in_user
+  
   file_path = File.join(data_path, params[:filename])
   File.delete(file_path)
   session[:message] = "#{params[:filename]} was deleted."
