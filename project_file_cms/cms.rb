@@ -3,6 +3,7 @@ require "sinatra/reloader"
 require "tilt/erubis"
 require "redcarpet"
 require "yaml"
+require "bcrypt"
 
 configure do
   enable :sessions
@@ -76,6 +77,19 @@ def load_users_credentials
   YAML.load_file(credentials_path)
 end
 
+
+def valid_credentials?(username, password)
+  credentials = load_users_credentials
+
+  if credentials.key?(username)
+    bcrypt_password = BCrypt::Password.new(credentials[username])
+    bcrypt_password == password
+  else
+    false
+  end
+end
+
+
 get "/:filename" do
   file_path = File.join(data_path, params[:filename])
 
@@ -140,10 +154,9 @@ get "/users/signin" do
 end
 
 post "/users/signin" do
-  user_credentials = load_users_credentials
   username = params[:username]
 
-  if user_credentials.has_key?(username) &&  user_credentials[username] == params[:password]
+  if valid_credentials?(username, params[:password])
     session[:username] = params[:username]
     session[:message] = "Welcome!"
     redirect "/"

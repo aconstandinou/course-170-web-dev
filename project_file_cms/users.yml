@@ -1,5 +1,5 @@
 {
-  antonio: acpassword,
-  olivia: ovpassword,
-  admin: secret
+  antonio: $2a$10$xmLaIZwm2c3bNhrZld8jmuPWjw2X8epCLobS9iM6fT/zeFS4W7YX6,
+  olivia: $2a$10$YmWZZTromYkd5Eb0n0ThQ.aicuMyibLs6FKHVrSyOjPuTocwN/yxa,
+  admin: $2a$10$BAAnpgvw9F3o3RHRfB.Gl.5NNzNurRMkd6GlFsRHhE9goj5Cm0Gbm
 }

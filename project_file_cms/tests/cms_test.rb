@@ -92,7 +92,7 @@ class CMSTest < Minitest::Test
     post "/about.txt", {edited_doc: "changed content for ruby minitest"}, admin_session
     assert_equal 302, last_response.status
     assert_equal "about.txt has been changed.", session[:message]
-    
+
     get "/about.txt", {}, admin_session
     assert_equal 200, last_response.status
     assert_equal last_response.body, "changed content for ruby minitest"
@@ -142,7 +142,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_good_login_credentials
-    post "/users/signin", {:username => "admin", :password => "secret"}
+    post "/users/signin", {:username => "admin", :password => "secret"}, admin_session
     assert_equal "Welcome!", session[:message]
     assert_equal "admin", session[:username]
 
