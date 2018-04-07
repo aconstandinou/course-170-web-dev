@@ -91,7 +91,7 @@ end
 
 
 get "/:filename" do
-  file_path = File.join(data_path, params[:filename])
+  file_path = File.join(data_path, File.basename(params[:filename]))
 
   if file_exists?(params[:filename])
     load_file_content(file_path)
