@@ -86,16 +86,16 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, %q(<button type="submit")
   end
 
-  def test_updating_document
-    create_document("about.txt")
+  def test_submit_doc_edits
+    create_document("about.txt", "old content")
 
     post "/about.txt", {edited_doc: "changed content for ruby minitest"}, admin_session
     assert_equal 302, last_response.status
     assert_equal "about.txt has been changed.", session[:message]
-
+    
     get "/about.txt", {}, admin_session
     assert_equal 200, last_response.status
-    assert_includes last_response.body, "changed"
+    assert_equal last_response.body, "changed content for ruby minitest"
   end
 
   def test_view_new_doc_form
