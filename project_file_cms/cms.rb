@@ -46,15 +46,11 @@ def require_signed_in_user
 end
 
 get "/" do
-  #if user_signed_in?
   pattern = File.join(data_path, "*")
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end
   erb :index, layout: :layout
-  #else
-  #  redirect "/users/signin"
-  #end
 end
 
 def load_file_content(path)
