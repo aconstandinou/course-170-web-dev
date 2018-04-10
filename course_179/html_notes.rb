@@ -4,7 +4,7 @@
 # Describe what HTTP is and the role of the request and the response.
 ###############################################################################
 - HTTP -> Hypertext Transfer Protocol
-- HTTP is a protocol, a system of rules that serve as a link between applications
+- HTTP is an application layer protocol, a system of rules that serve as a link between applications
   and the transfer of hypertext documents.
 - Provides a format for machines to communicate with each other.
 Example: clients browser viewing a web page, hence why our URLs start with http://
@@ -17,7 +17,7 @@ Example: servers dont need to hang on to information or state between requests.
 # What are the components of an HTTP request and an HTTP response?
 ###############################################################################
 
-HTTP Request - A request is sent to a host and must include a method and a path.
+HTTP Request - A request is sent to a host and must include a method, path and host header.
 # (required)
 - HTTP Method (verb that tells server what action to perform on resource)
           Most common: GET and POST
@@ -77,7 +77,7 @@ http://www.phoneshop.com?product=iphone&size=32gb&color=white
 name-value pairs = product=iphone, size=32gb, color=white
 "?" reserved character that marks the start of the query string
 "&" reserved character, used when adding more parameters to the query string.
-"%20" or "+" replace spaces in search queries
+"%20" or "+" replace spaces " " in search queries
 
 # Default Ports (encrypted and unencrypted data)
 # HTTPS vs HTTP
@@ -108,6 +108,9 @@ Any request sent as plain text, regardless of the HTTP method used, is
 # What is the difference between client-side and server-side code?
 # For each file in a Sinatra project, be able to say which it is.
 ###############################################################################
+  client side code are programs that run on the client and includes the user
+    interface with which the user interacts, whereas server side code are
+    programs run on the server and interact with the back end
 
 "Server Side"
 Gemfile: File used by bundler - Ruby dependency management system to install
@@ -115,7 +118,9 @@ Gemfile: File used by bundler - Ruby dependency management system to install
 Ruby files (.rb): Core of a Sinatra App. Code runs on server while handling
                   incoming requests.
 View Templates (.erb): evaluated on the server to generate a response that will then be sent to the client.
-
+                              server side because they have to be parsed by the server.
+                              Until they are done being parsed and rendered,
+                              the response is not sent back.
 "Client Side"
 Stylesheets (.css): files are interpreted by web browser (client) as instructions
                     for how to display a web page.
@@ -123,7 +128,7 @@ JavaScript Files (.js): evaluated by the JavaScript interpreter within a web
                         browser (a client) to add behavior to a web page.
 
 ###############################################################################
-############################## INSPECTOR TOOL ###############################
+############################## INSPECTOR TOOL ################################
 ###############################################################################
 
 - It lets you view HTTP requests made to the current web domain.
@@ -131,7 +136,7 @@ JavaScript Files (.js): evaluated by the JavaScript interpreter within a web
 - It lets you view the HTML, CSS, and Javascript for the current web page.
 
 ###############################################################################
-########################### SIMULATE "STATEFUL" APP ############################
+########################### SIMULATE "STATEFUL" APP ###########################
 ###############################################################################
 
 1. By sending data as parameters through the URL.
