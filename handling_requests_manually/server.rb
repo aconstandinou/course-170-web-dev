@@ -92,7 +92,7 @@ loop do
 
   client.puts "HTTP/1.1 200 OK"           # video added this line
   client.puts "Content-Type: text/html"   # video modified this from plain to html
-  client.puts                             # adds empty line
+  client.puts                             # adds empty line to response
   client.puts "<html>"                    # print out html tag
   client.puts "<body>"                    # print out body tag
   client.puts "<pre>"                     # pre tag: preserve white space+print out as its seen

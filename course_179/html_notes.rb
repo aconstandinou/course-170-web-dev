@@ -6,8 +6,11 @@
 - HTTP -> Hypertext Transfer Protocol
 - HTTP is an application layer protocol, a system of rules that serve as a link between applications
   and the transfer of hypertext documents.
-- Provides a format for machines to communicate with each other.
-Example: clients browser viewing a web page, hence why our URLs start with http://
+
+- Provides a format for machines to communicate with each other and the request response
+  cycle is one of the basic methods computers use to communicate with each other.
+
+Example: clients browser wants to view a web page, hence why our URLs start with http://
 - The model allows the client to make requests to a server, and await a response.
   This is known as the request response protocol.
 - HTTP is stateless, where each pair of request/response are independent of the previous one.
@@ -49,6 +52,8 @@ HTTP headers are name-value pairs included in a HTTP request or response.
 Headers act as metadata that provides supplemental information about the
 request/response to aide the server or client in processing the request or response.
 
+OSI -> https://launchschool.com/lessons/1ba34626/assignments/f2948005
+
 ###############################################################################
 # Identify the components of a URL. Construct a URL that contains a few params and values.
 ###############################################################################
@@ -68,9 +73,12 @@ http://www.example.com:88/home?item=book
 # {5} QUERY PARAMETERS/
 #     QUERY STRING      :    ?item=book
 #                            sends data to server. (OPTIONAL)
-Default port number in HTTP is 80.
+
+# Default Ports (encrypted and unencrypted data)
+# HTTPS vs HTTP
+HTTP default port 80 for unencrypted data transmission; HTTPS default port 443 for encrypted data transmission.
 Even though this port number is not always specified, its assumed to be part of every URL.
-Must specify port in URL if different from 80
+Must specify port in URL if different from http 80 || https 443
 
 # URL Construction:
 http://www.phoneshop.com?product=iphone&size=32gb&color=white
@@ -78,10 +86,6 @@ name-value pairs = product=iphone, size=32gb, color=white
 "?" reserved character that marks the start of the query string
 "&" reserved character, used when adding more parameters to the query string.
 "%20" or "+" replace spaces " " in search queries
-
-# Default Ports (encrypted and unencrypted data)
-# HTTPS vs HTTP
-Port 80 for unencrypted data transmission; Port 443 for encrypted data transmission.
 
 ###############################################################################
 # Explain the difference between GET and POST, and know when to choose each.
