@@ -39,6 +39,9 @@ can be used to access the inputs value when the form is submitted.
 # Why is user enter content a security risk? How can you mitigate it?
 ###############################################################################
 
+"HTTPS security:" https://launchschool.com/books/http/read/security
+
+'User entered security'
 https://launchschool.com/lessons/d755e7ec/assignments/70e3be0a
 
 - The fact that webpages are building HTML dynamically means that there

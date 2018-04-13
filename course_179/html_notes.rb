@@ -7,8 +7,7 @@
 - HTTP is an application layer protocol, a system of rules that serve as a link between applications
   and the transfer of hypertext documents.
 
-- Provides a format for machines to communicate with each other and the request response
-  cycle is one of the basic methods computers use to communicate with each other.
+- Request response cycle is one of the basic methods computers use to communicate with each other.
 
 Example: clients browser wants to view a web page, hence why our URLs start with http://
 - The model allows the client to make requests to a server, and await a response.
@@ -25,7 +24,7 @@ HTTP Request - A request is sent to a host and must include a method, path and h
 - HTTP Method (verb that tells server what action to perform on resource)
           Most common: GET and POST
 - path : /tasks
-- host header : Host-------------Domain of server------------------Host: www.reddit.com
+- host header : www.reddit.com
 # (optional)
 - parameters : ?due=today
 - headers : additional info during request/response cycle.
@@ -114,7 +113,7 @@ Any request sent as plain text, regardless of the HTTP method used, is
 ###############################################################################
   client side code are programs that run on the client and includes the user
     interface with which the user interacts, whereas server side code are
-    programs run on the server and interact with the back end
+    programs run on the server and interact with the back end.
 
 "Server Side"
 Gemfile: File used by bundler - Ruby dependency management system to install
@@ -142,12 +141,34 @@ JavaScript Files (.js): evaluated by the JavaScript interpreter within a web
 ###############################################################################
 ########################### SIMULATE "STATEFUL" APP ###########################
 ###############################################################################
+https://launchschool.com/books/http/read/statefulness
 
 1. By sending data as parameters through the URL.
 2. Using Cookies: Cookies are temporary pieces of information that we can send
                   back and forth via the HTTP requests and responses
 3. Using Sessions: data to keep track of a user for a given web domain.
 
+Sessions: server sends unique token to the client. Client making a request to the server,
+            client appends token as part of the request, then server can identify client.
+          (stored on server)
+          1. Every request must be inspected to see if it contains a session identifier.
+          2. If it does contain a session id, server must check if that this session id is still valid.
+
+Cookies: are small files stored in the browser and contain the session information.
+         Note that the actual session data is stored on the server. The client
+           side cookie is compared with the server-side session data on each request
+           to identify the current session.
+
+Bringing it altogether. Logged into LS, and opened inspector tool.
+    Under Application -> under Cookies -> clicked on https://launchschool.com
+    We can identify _railstutors_session -> our session
+    We can identify uuuid -> our cookie
+
+    With the session id now being sent with every request, the server can now
+      uniquely identify this client. When the server receives a request with a
+      session id, the server will look for the associated data based on that id,
+      and in that associated session data is where the server "remembers" the
+      state for that client, or more precisely, for that session id.
 ###############################################################################
 ############################# SAME ORIGIN POLICY ##############################
 ###############################################################################
