@@ -106,7 +106,22 @@ for file names -> use File.basename to strip off anything other than file name.
 
 SIDE NOTE -> To summarize, try to keep the following guidelines in mind while developing web applications:
              1. Avoid using parameters to construct file paths if at all possible.
+                (especially when parameters are user inputed via a form, ie: file name to create)
              2. Use whitelisting to explicitly define what is allowed.
+                (this means specifically creating available options within our app code,
+                 this could be using a case variable and when ."txt")
+
+               def load_file_content(path)
+                 content = File.read(path)
+                 case File.extname(path)
+                 when ".txt"
+                   headers["Content-Type"] = "text/plain"
+                   content
+                 when ".md"
+                   erb render_markdown(content)
+                 end
+               end
+
              3. Try to think like a person that is attempting to alter the behavior
                 of your software. Is it possible to introduce an unexpected value
                 into the system through expected means such as parameters?

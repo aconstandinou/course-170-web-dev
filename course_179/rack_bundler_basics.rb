@@ -1,45 +1,51 @@
 ################################################################################
-################################## RACK ##################################
+##################################### RACK #####################################
 ################################################################################
 
-- Rack library: generic interface to help app developers connect to web servers (ie: WEBrick, Puma)
+# PART I - Rack Basics
 
-Server as a whole: includes rack app and a web server.
+- Rack library: generic interface to help app developers connect to web servers (ie: WEBrick, Puma)
+- Rack is also be used to build simple web apps (like Sinatra or Rails)
+
+Server as a whole includes 1) rack app & 2) web server.
 
 Rack = specification for connecting our app code to the web server, and also our app to the client.
        sets and allow us to utilize a standardized methodology for communicating HTTP requests
          and responses between the client and the server.
 
-# PART I - Rack Basics
 Requirements
 1. rackup file = config.ru (specifies what to run and how to run it)
 2. rack app in .ru must be a Ruby Object that responds to method #call(env)
-  call(env) method takes one argument, the environment variables for this app
+  call(env) method takes one argument, the environment hash variable for this app.
 
 The call method always returns an array, containing these 3 elements:
 
   1. Status Code: represented by a string or other data type that responds to #to_i
-  2. Headers: these will be in the form of key-value pairs inside a hash.
+  2. Response Headers: these will be in the form of key-value pairs inside a hash.
               The key will be a header name and the corresponding value will be the value for that header.
   3. Response Body: this object can be anything, as long as that object can respond to an #each method.
                     An Enumerable object would work, as would a StringIO object, or
                     even a custom object with an each method would work.
                     The response should never just be a String by itself, but it must yield a String value.
 
+# ------------------------ code ---------------------------
 # config.ru file
 require_relative 'hello_world'
 run HelloWorld.new
+# --------------------- end of code -----------------------
 
-Two things in config.ru: 1. require_relative that loads a file called hello_world.rb
+Two things in config.ru: 1. require_relative that loads our app called hello_world.rb
                          2. a call to the run method. Rack configuration files
                             use run to say what application we want to run on our server.
 
+# ------------------------ code ---------------------------
 # hello_world.rb file
 class HelloWorld
   def call(env)
     ['200', {'Content-Type' => 'text/plain'}, ['Hello World!']]
   end
 end
+# --------------------- end of code -----------------------
 
 to start rack app -> $ bundle exec rackup config.ru -p 9595
 in browser -> http://localhost:9595/
@@ -48,7 +54,7 @@ in browser -> http://localhost:9595/
 # https://launchschool.com/blog/growing-your-own-web-framework-with-rack-part-2
 
 in call method, env argument -> - contains all environment variables and info related to HTTP request
-                                    for hello_world.rb app.
+                                    for hello_world.rb app
                                 - contains info for headers + specific infor about Rack.
 
 Dynamic Content -> help from routing (aka routes)
