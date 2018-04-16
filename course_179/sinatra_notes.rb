@@ -41,6 +41,15 @@ In the example route, were loading the contents of the file at "public/template.
 
 ################################ VIEW TEMPLATES ################################
 
+Benefits?
+- View templates allow us to combine HTML and Ruby code.
+- Allows us to reduce duplication of HTML as well as generate dynamic content.
+- Without view templates, we would end up writing HTML code into each route within
+    the string we return in our response.
+  And were including dynamic content via string interpolation.
+
+What do they do?
+
 - CONVERT HTML : files that contain text, converted into HTML before being sent to users browser response.
 - DYNAMIC : allows our web apps to be more dynamic
 
@@ -77,6 +86,34 @@ Note how the yield keyword is used in a layout to indicate where the content
 " TEMPLATE PARAMETERS "
 - need to be defined as instance variables in routes.
 
+################################### SESSIONS ###################################
+# http://guides.rubyonrails.org/security.html#sessions
+
+# http://sinatrarb.com/intro.html
+
+# https://launchschool.com/books/http/read/statefulness#sessions
+
+Q - What is a session?
+A - its a way to keep state during requests. It does this by
+    sending a cookie with session data to a clients web browser. This cookie
+    is then included on future requests to the server as a way for the web app
+    to verify the details of the data, and respond accordingly.
+    We know HTTP is stateless, and therefore this allows a way to store data
+      during one request for access in later requests.
+    Common usage would be for tracking whether a user is logged in.
+
+Q - Where is it stored?
+A - Session data is stored on the server and accessible as a hash.
+
+Q - How is it used?
+A - Can be modified/accessed via Sinatra routes.
+
+# Setup in our app
+configure do                               # configure block is enabling these settings
+  enable :sessions
+  set :session_secret, 'secret'
+end
+
 ############################### ROUTE PARAMETERS ###############################
 
 Parameters added to the URL pattern.
@@ -91,8 +128,8 @@ Values passed to the app thru the URL in this way appear in the params Hash that
 # Can access as follows:
 
 get "/chapters/:number" do
-  @chapter_number = params[:number] # method 1
-  @chapter_number = params["number"] # method 2
+  @chapter_number = params[:number] # method 1 (symbol)
+  @chapter_number = params["number"] # method 2 (string)
 end
 
 # another example
@@ -111,7 +148,7 @@ end
 
 ################################## REDIRECTING #################################
 
-1)
+1) # this one gets executed when it cant find a route
 not_found do
   "That page was not found"
 end
@@ -120,9 +157,43 @@ end
 redirect "/a/good/path"
 
  - WHAT HAPPENS WITHIN HTTP RESPONSE?
-1) HTTP Response Requires : sets "Location" header in HTTP response + status code value to range 3XX
-2) Browser confirms status code, looks at "Location" and navigates to URL
+1) HTTP Response : sets "Location" header in HTTP response + status code value to range 3XX
+2) Browser confirms status code as a redirect, looks at "Location" and makes a
+    GET request to the provided URL
 
+ - WHY IS IT NEEDED?
+
+################################# SEARCH FORM #################################
+# https://launchschool.com/lessons/ee756b04/assignments/09d7452c
+So far parameters have been extracted from the URL.
+There are two other ways to get data into the params hash:
+
+1. Using query parameters in the URL
+2. By submitting a form using a POST request
+
+How it works?
+- When a form is submitted, the browser makes a HTTP request.
+- This request is made to the path or URL specified in the "action" attribute of the form element.
+- The method attribute of the form determines if the request made will use GET or POST.
+- The value of any input elements in the form will be sent as parameters.
+  The keys of these parameters will be determined by the "name" attribute of the corresponding input element.
+
+# HTML CODE
+<h2 class="content-subhead">Search</h2>
+
+<form action="/search" method="get">
+  <input name="query" value="<%= params[:query] %>">
+  <button type="submit">Search</button>
+</form>
+
+# Corresponding Ruby Code
+get "/search" do
+  @results = chapters_matching(params[:query])
+  erb :search
+end
+
+Were using GET as the method for this form because performing a search doesnt modify any data.
+  If our form submission was modifying data, we would use POST as the forms method.
 
 ################################ BEFORE FILTERS ################################
 
@@ -142,12 +213,12 @@ end
 ############################### POTENTIAL ERRORS ################################
 # https://launchschool.com/quizzes/70020696
 
-1) erb code trying to evaluate a variable defined as a local variable in ruby app code.
-
+1) erb code trying to evaluate a variable defined as a local variable in ruby app code
+   and not as an instance variable.
 Result -> error
 
 get "/" do
-  name = "Bob"
+  name = "Bob"                    # local var needs to be instance var @name
   @address = ["123 Oak Street", "Portland", "Oregon", "97232"]
   erb :index
 end

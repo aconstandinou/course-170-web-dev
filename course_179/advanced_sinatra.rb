@@ -18,6 +18,18 @@ class HelloWorld
   end
 end
 
+########################### ENV Variable in Sinatra ############################
+# https://blog.engineyard.com/2015/understanding-rack-apps-and-middleware
+
+- rack-based frameworks wrap "env" in Rack::Request object
+- Rack::Request provides helpful methods, ie:
+  #request_method
+  #session
+  #logger
+- also lets us check out things like #params
+                                     HTTP #scheme
+- Rack::Response object gives you convenience to #write, #set_cookie, #finish
+
 ############################ Return Values of Routes ############################
 # http://sinatrarb.com/intro.html       ctrl+f for Return Values
 

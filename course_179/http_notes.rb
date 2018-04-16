@@ -6,6 +6,9 @@
 - HTTP -> Hypertext Transfer Protocol
 - HTTP is an application layer protocol, a system of rules that serve as a link between applications
   and the transfer of hypertext documents.
+- Stateless : what they mean is that every HTTP request is handled separately.
+              When a server finishes handling one request, it forgets everything
+              about that request before accepting the next one.
 
 - Request response cycle is one of the basic methods computers use to communicate with each other.
 
