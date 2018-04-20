@@ -3,20 +3,27 @@
 ###############################################################################
 # Describe what HTTP is and the role of the request and the response.
 ###############################################################################
-- HTTP -> Hypertext Transfer Protocol
-- HTTP is an application layer protocol, a system of rules that serve as a link between applications
-  and the transfer of hypertext documents.
-- Stateless : what they mean is that every HTTP request is handled separately.
-              When a server finishes handling one request, it forgets everything
-              about that request before accepting the next one.
+# https://launchschool.com/quizzes/f3cc7006
+HTTP (Hypertext Transfer Protocol)
 
-- Request response cycle is one of the basic methods computers use to communicate with each other.
+- HTTP is a stateless protocol that serves as the foundation of data communication
+    on the web. The way communication takes place is through a request/response
+    cycle.
+    We say that HTTP is stateless for two reasons:
+    1. Each request/response cycle is independent of the previous and next cycles.
+    2. Information isnt saved between request/response cycles.
+    Lastly, HTTP is an application layer protocol.
+
+- Request/Response role: this role allows a user, for example in a web browser to
+                         make a request to the application server and await a response.
+                         An example would be going to googles webpage. Typing in the
+                         URL and hitting enter makes a request to Googles app server.
+                         The server then processes the request, and returns a response.
 
 Example: clients browser wants to view a web page, hence why our URLs start with http://
 - The model allows the client to make requests to a server, and await a response.
   This is known as the request response protocol.
-- HTTP is stateless, where each pair of request/response are independent of the previous one.
-Example: servers dont need to hang on to information or state between requests.
+
 
 ###############################################################################
 # What are the components of an HTTP request and an HTTP response?
