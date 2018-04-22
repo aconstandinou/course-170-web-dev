@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <title>Payments</title>
+  <meta charset="UTF-8">
+  <link href="/stylesheets/application.css" rel="stylesheet" type="text/css" />
+  <body>
+
+    <% if session[:message] %>
+      <p class="message"><%= session.delete(:message) %></p>
+    <% end %>
+
+    <%= yield %>
+
+  </body>
+</html>

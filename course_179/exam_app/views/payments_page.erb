@@ -1,0 +1,20 @@
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created</th>
+      <th>Card Number</th>
+      <th>Expiration Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% session[:payments].each do |arr| %>
+      <tr>
+        <td><%= arr[1] %>, <%= arr[0] %></td>
+        <td><%= arr[2] %></td>
+        <td><%= hide_cc_number(arr[3]) %></td>
+        <td><%= arr[4] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
